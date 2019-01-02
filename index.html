@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>Basic using</title>
+
+   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css" />
+    <style>
+        * { margin: 0; padding: 0; }
+        html, body { height: 100%; }
+        #map { width:100%; height:100%; }
+
+        /* popup-class*/
+        .class-popup .leaflet-popup-content-wrapper {
+            /* background:#2980b9;
+            color:#fff;
+            font-size:10px;
+            line-height:10px; */
+            padding: 1;
+        }
+
+        /* tooltip-class*/ 
+        .class-tooltip {
+            /* background: green; */
+            /* border: 2px solid cyan; */
+            font-weight: bold;
+            padding: 0;
+        }
+    </style>
+
+    <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"></script>
+    <script src="leaflet.rotatedMarker.js"></script>
+    <script>
+        window.onload = function() {
+            var popup = L.popup();
+            var map = L.map('map', {
+                center: [-13.5225395, -71.972731],
+                zoom: 14,
+                layers: [
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                    })
+                ]
+            });
+
+            var LeafIconBus = L.Icon.extend({
+                options: {
+                    // iconUrl: 'my-icon.png',
+                    iconSize: [48, 48],
+                    iconAnchor: [24, 24],
+                    // popupAnchor: [-3, -76],
+                    // shadowUrl: 'my-icon-shadow.png',
+                    // shadowSize: [68, 95],
+                    // shadowAnchor: [22, 94]
+                }
+            });
+            var LeafIconFlag = L.Icon.extend({
+                options: {
+                    // iconUrl: 'my-icon.png',
+                    iconSize: [48, 48],
+                    iconAnchor: [12, 46],
+                    // popupAnchor: [-3, -76],
+                    // shadowUrl: 'my-icon-shadow.png',
+                    // shadowSize: [68, 95],
+                    // shadowAnchor: [22, 94]
+                }
+            });
+            var LeafIconNavigation = L.Icon.extend({
+                options: {
+                    // iconUrl: 'my-icon.png',
+                    iconSize: [18, 18],
+                    iconAnchor: [9, 9],
+                    // popupAnchor: [-3, -76],
+                    // shadowUrl: 'my-icon-shadow.png',
+                    // shadowSize: [68, 95],
+                    // shadowAnchor: [22, 94]
+                }
+            });
+            var bus_icon = new LeafIconBus({iconUrl: 'bus.svg'});
+            var flag_icon = new LeafIconFlag({iconUrl: 'flag0.svg'});
+            var navigation_icon = new LeafIconNavigation({iconUrl: 'navigation0.svg'});
+
+            var marker1 = L.marker([-13.521115, -71.967346], {
+                icon: bus_icon,
+                rotationAngle: 0,
+                draggable: false
+            })
+            .bindPopup("I am a green leaf.", {className: 'class-popup'})
+            .bindTooltip("01", {direction: 'top', permanent: true, offset: [0, -12], className: 'class-tooltip'})
+            .addTo(map);
+
+            var marker2 = L.marker(map.getCenter(), {
+                icon: bus_icon,
+                rotationAngle: 0,
+                draggable: false
+            })
+            .bindPopup("I am a green leaf.", {className: 'class-popup'})
+            .bindTooltip("02", {direction: 'top', permanent: true, offset: [0, -12], className: 'class-tooltip'})
+            .addTo(map);
+
+            L.marker(map.getCenter(), {icon: flag_icon})
+            .bindPopup('Hello', {className: 'class-popup'})
+            .bindTooltip('03',{direction: 'top', permanent: true, offset: [0, -12], className: 'class-tooltip'})
+            .addTo(map);
+            L.marker(map.getCenter()).addTo(map);
+
+            var latlon_mapping = [
+                [-13.519054859527968, -71.97137339950564],
+                [-13.519044427963808, -71.97108372093203],
+                [-13.519044427963808, -71.97096570373537],
+                [-13.519044427963808, -71.9708798730469]
+            ];
+
+            // create a red polyline from an array of LatLng points
+            var latlngs = [
+                [-13.521133, -71.966701],
+                [-13.522370, -71.962756],
+                [-13.524175, -71.956912]
+            ];            
+            var polyline = L.polyline(latlngs, {color: '#db3236', opacity: 0.7, weight: 10}).addTo(map);
+            // zoom the map to the polyline
+            map.fitBounds(polyline.getBounds());
+
+            // Add marker flag
+            for (var k = 0; k < latlngs.length; k++) {
+                // L.marker(latlngs[k]).addTo(map);
+                L.marker(latlngs[k], {icon: flag_icon})
+                .bindPopup('Control ' + k, {className: 'class-popup'})
+                .bindTooltip((k + 1) + "", {direction: 'top', permanent: true, offset: [14, -14], className: 'class-tooltip'})
+                .addTo(map);
+                L.circle(latlngs[k], 40, {
+                    color: '#3cba54',
+                    fillColor: '#3cba54',
+                    fillOpacity: 0.2,
+                    opacity: 0.5,
+                    weight: 1
+                }).addTo(map);
+            }
+
+            // Add marker arrow for mapping
+            for (var k = 0; k < latlon_mapping.length; k++) {
+                if (k == 2) {
+                    navigation_icon = new LeafIconNavigation({iconUrl: 'navigation1.svg'});
+                }
+                L.marker(latlon_mapping[k], {
+                    icon: navigation_icon,
+                    rotationAngle: (-45) + 90,
+                    draggable: false
+                })
+                .bindPopup(ShowInfo("02", "12:54:33", "23"), {className: 'class-popup'})
+                .addTo(map);
+            }
+
+            // Set rotate angle, set location marker and set bindPopup
+            var angle = 0;
+            var lat = -13.5295395;
+            setInterval(function(){ 
+                angle += 10;
+                lat += 0.00009;
+                var latlng = L.latLng(lat, -71.972731);
+                marker1.setRotationAngle(angle % 360);
+                marker1.bindPopup(ShowInfo("02", "12:54:33", angle % 360));
+                marker2.setLatLng(latlng);
+                marker2.setRotationAngle(angle % 360);
+                marker2.bindPopup(ShowInfo("02", "12:54:33", lat));
+            }, 4000);
+
+            // Click map event
+            map.on('click', onMapClick);
+            function onMapClick(e) {
+                L.popup()
+                .setLatLng(e.latlng)
+                .setContent("You clicked the map at " + e.latlng.toString())
+                .openOn(map);
+            }
+        };
+
+        function ShowInfo(id, time, velocity){
+            var message = "<b>N°: </b>" + id + "<br/>" +
+                          "<b>Hora: </b>" + time + "<br/>" +
+                          "<b>Vel: </b>" + velocity + "<br/>";
+            return message;
+        }
+    </script>
+    </head>
+
+    <body>
+        <div id="map"></div>
+    </body>
+</html>

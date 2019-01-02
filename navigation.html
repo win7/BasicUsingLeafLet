@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Navigation</title>
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css" />
+	<style>
+		#map {
+			height: 100%;
+		}
+		html, body {
+			height: 100%;
+			margin: 0;
+			padding: 0;
+		}
+	</style>
+</head>
+<body>
+	<div>
+		Name: <input type="text" id="name" value=""> <br>
+		Latitude: <input type="text" id="latitude"><br>
+		Longitude: <input type="text" id="longitude" onkeypress="Update(event)"><br>
+		Navigation: <input type="number" id="navigation" value="0"> <br>
+		<button onclick="SetValues()">Set values</button>
+		<button onclick="AddMarker()">Add marker</button>
+	</div>
+	<br>
+	<!-- <img id="floating-img" src="https://http2.mlstatic.com/D_Q_NP_689966-MLM28192187864_092018-Q.jpg" alt="Smiley face" height="256" width="256">  -->
+	<div id="map"></div>
+
+	<script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"></script>
+    <script src="leaflet.rotatedMarker.js"></script>
+	<script>
+		var marker;
+		var map;
+
+		var LeafIconNavigation = L.Icon.extend({
+            options: {
+                // iconUrl: 'my-icon.png',
+                iconSize: [36, 36],
+                iconAnchor: [36, 0],
+                // popupAnchor: [-3, -76],
+                // shadowUrl: 'my-icon-shadow.png',
+                // shadowSize: [68, 95],
+                // shadowAnchor: [22, 94]
+            }
+        });
+        var LeafIconArrowCircle = L.Icon.extend({
+            options: {
+                // iconUrl: 'my-icon.png',
+                iconSize: [24, 24],
+                iconAnchor: [12, 12],
+                // popupAnchor: [-3, -76],
+                // shadowUrl: 'my-icon-shadow.png',
+                // shadowSize: [68, 95],
+                // shadowAnchor: [22, 94]
+            }
+        });
+        var navigation_icon = new LeafIconNavigation({iconUrl: 'navigation0.svg'});
+        var arrow_circle_icon = new LeafIconArrowCircle({iconUrl: 'arrow_circle2.svg'});
+
+		function initMap() {
+			map = L.map('map', {
+                center: [-13.520917, -71.967360],
+                zoom: 16,
+                layers: [
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                    })
+                ]
+            });
+
+			marker = L.marker(map.getCenter(), {
+                icon: navigation_icon,
+                rotationAngle: -45,
+                draggable: true
+            })
+            // .bindTooltip("0", {direction: 'top', permanent: true, offset: [0, -12], className: 'class-tooltip'})
+            .addTo(map);
+            L.marker(map.getCenter()).addTo(map);
+
+			// Move marker event
+			marker.on('dragend', function(e) {
+		    	console.log(marker.getLatLng());
+		    	document.getElementById('latitude').value = marker.getLatLng().lat;
+				document.getElementById('longitude').value = marker.getLatLng().lng;
+		    });
+		}
+
+		function SetValues() {
+			var latlng = L.latLng(parseFloat(document.getElementById('latitude').value), parseFloat(document.getElementById('longitude').value));
+            marker.setLatLng(latlng);
+            marker.setRotationAngle((parseFloat(document.getElementById('navigation').value) % 360) - 45);
+            map.panTo(latlng);
+		}
+
+		function AddMarker() {
+			// For save
+			L.marker(marker.getLatLng(), {
+                icon: arrow_circle_icon,
+                rotationAngle: (parseFloat(document.getElementById('navigation').value) % 360) - 90
+            })
+            .bindPopup(document.getElementById('name').value, {className: 'class-popup'})
+            .addTo(map);
+		}
+
+		navigation.oninput = function() {
+			console.log((navigation.value % 360));
+			marker.setRotationAngle((navigation.value % 360) - 45);
+		};
+
+		initMap();
+	</script>
+</body>
+</html>
